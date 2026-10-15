@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campus Customs — Resolved Board</title>
+<style>
+  :root{--yale:#00356b;--ink:#13171c;--muted:#5b6673;--line:#d8dee6;--bg:#f4f6f9;
+        --ok:#13754a;--ok-bg:#e9f6ef;--warn:#8a6d1f;--warn-bg:#fdf8e9}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1060px;margin:0 auto;padding:26px 18px 70px}
+  header.page{background:var(--yale);color:#fff;border-radius:12px;padding:22px 26px;margin-bottom:14px}
+  header.page h1{margin:0 0 5px;font-size:25px;letter-spacing:-.01em}
+  header.page p{margin:0;opacity:.9;font-size:14.5px}
+  .meta{margin-top:13px;display:flex;flex-wrap:wrap;gap:8px}
+  .meta span{background:rgba(255,255,255,.14);border-radius:999px;padding:4px 12px;font-size:13px}
+  .hint{margin:0 0 20px;padding:11px 16px;background:#fff;border:1px solid var(--line);
+    border-left:4px solid #286dc0;border-radius:8px;font-size:14px;color:var(--muted)}
+  .hint b{color:var(--ink)}
+
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:20px;overflow:hidden}
+  .card > h2{margin:0;padding:15px 20px;font-size:17px;display:flex;align-items:center;
+    gap:11px;border-bottom:1px solid #e9edf3}
+  .pill{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+    padding:3px 9px;border-radius:5px;background:var(--ok-bg);color:var(--ok)}
+  .pill.cash{background:var(--warn-bg);color:var(--warn)}
+  .card .who{font-size:13.5px;color:var(--muted);font-weight:400;margin-left:auto}
+  .body{padding:16px 20px}
+  .outcome{font-size:14.5px;color:#39434f;margin:0 0 14px}
+
+  .shot{position:relative;border:1px solid var(--line);border-radius:9px;overflow:hidden;
+    background:#eef1f6;cursor:zoom-in;user-select:none}
+  .shot img{display:block;width:100%;height:auto}
+  .shot .cap{position:absolute;left:0;right:0;bottom:0;padding:8px 13px;
+    background:linear-gradient(transparent,rgba(5,12,22,.86));color:#fff;font-size:12.5px}
+  .shot .tapme{position:absolute;top:9px;right:9px;background:rgba(5,12,22,.72);color:#fff;
+    font-size:11px;letter-spacing:.04em;text-transform:uppercase;padding:4px 9px;border-radius:5px}
+  .shot:hover .tapme{background:var(--yale)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-top:15px}
+  .kv{border:1px solid #e9edf3;border-radius:8px;padding:10px 12px;background:#f9fbfd}
+  .kv .k{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}
+  .kv .v{font-size:15px;font-weight:650;margin-top:3px}
+  .kv .v.neg{color:#a33a3a}
+  .kv .v.zero{color:var(--muted)}
+
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:15px}
+  th,td{text-align:left;padding:8px 11px;border-bottom:1px solid #eef1f5;vertical-align:top}
+  th{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);
+    border-bottom:2px solid var(--line)}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  tr.total td{border-top:2px solid var(--line);font-weight:700;border-bottom:0}
+  code{background:#eef1f6;border:1px solid #e1e6ee;border-radius:4px;padding:1px 6px;
+    font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+
+  /* lightbox */
+  .lb{position:fixed;inset:0;background:rgba(6,11,19,.93);display:none;z-index:99;
+    padding:22px;cursor:zoom-out}
+  .lb.on{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+  .lb img{max-width:100%;max-height:85vh;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .lb .lbcap{color:#dbe6f0;font-size:13.5px;text-align:center;max-width:800px}
+  .lb .close{position:absolute;top:16px;right:20px;color:#fff;background:rgba(255,255,255,.14);
+    border:0;border-radius:7px;padding:7px 13px;font:inherit;font-size:13px;cursor:pointer}
+
+  footer.page{margin-top:24px;color:var(--muted);font-size:13px;text-align:center}
+  @media print{.hint,.tapme{display:none}.card{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page">
+    <h1>Resolved Board</h1>
+    <p>Screenshots of the React dashboard for each ticket after it was resolved.</p>
+    <div class="meta">
+      <span>Shift 2026-08-31</span>
+      <span>3 of 3 resolved</span>
+      <span>Opening $3,400.00</span>
+      <span>Closing $160.00</span>
+      <span>HW 5 · Task 9</span>
+    </div>
+  </header>
+
+  <p class="hint">
+    <b>Double-click (or double-tap) any screenshot</b> to open it full size. Press
+    <b>Esc</b> or click anywhere to close. Each shot is the live board at
+    <code>http://localhost:5173</code> with that ticket selected.
+  </p>
+
+  <!-- ===================== 101 ===================== -->
+  <div class="card">
+    <h2>
+      <span class="pill">Resolved</span>
+      Ticket #101 — Bulldog tee
+      <span class="who">Tauhid Zaman · customer order</span>
+    </h2>
+    <div class="body">
+      <p class="outcome">
+        Paid the overdue <b>$840.00</b> reprint invoice (#501) to release the rush reprint,
+        booked <b>12 units</b> of CC-TEE-WHITE size S into stock, and closed the order as
+        fillable. The agents escalated rather than paying; a human approved the money.
+      </p>
+
+      <div class="shot" data-cap="Ticket #101 selected on the desk board. The queue shows all three tickets RESOLVED; the detail pane carries both the agent's escalation note and the human resolution note. Checking reads $160.00 with $0.00 obligations remaining.">
+        <span class="tapme">Double-click to enlarge</span>
+        <img src="resolved_board_images/ticket-101-board.jpg" alt="Desk board with ticket 101 resolved">
+        <div class="cap">#101 resolved — reprint paid, 12 tees booked in, balance $160.00</div>
+      </div>
+
+      <div class="grid">
+        <div class="kv"><div class="k">Agent disposition</div><div class="v">escalated</div></div>
+        <div class="kv"><div class="k">Final status</div><div class="v">resolved</div></div>
+        <div class="kv"><div class="k">Cash effect</div><div class="v neg">−$840.00</div></div>
+        <div class="kv"><div class="k">Stock effect</div><div class="v">S: 0 → 12</div></div>
+      </div>
+
+      <table>
+        <tr><th>Desk</th><th>Tools used</th><th>What it contributed</th></tr>
+        <tr><td><b>Shift manager</b></td><td><code>get_ticket</code> <code>resolve_ticket</code></td>
+            <td>Routed to three desks, closed as escalated rather than authorising payment.</td></tr>
+        <tr><td><b>Inventory</b></td><td><code>get_ticket</code> <code>find_vendor</code></td>
+            <td>Stock 0, shortfall 1; invoice 501 is a reprint of this exact SKU, so no second order needed.</td></tr>
+        <tr><td><b>Accounting</b></td><td><code>get_ticket</code> <code>get_cash_and_obligations</code></td>
+            <td>$3,400 cash; paying the $840 plus $2,400 rent leaves $160 — needs human approval.</td></tr>
+        <tr><td><b>Customer service</b></td><td><code>get_ticket</code></td>
+            <td>Reply must not promise the unconfirmed 2026-09-02 reprint date.</td></tr>
+        <tr><td><b>Facilities</b></td><td>—</td><td>Correctly not consulted; no lease question here.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===================== 102 ===================== -->
+  <div class="card">
+    <h2>
+      <span class="pill">Resolved</span>
+      Ticket #102 — Rent due
+      <span class="who">Elm City Properties · rent notice</span>
+    </h2>
+    <div class="body">
+      <p class="outcome">
+        Rent verified at <b>$2,400.00</b> against lease 1 — the emailed notice named no amount
+        at all — then paid in full after human approval.
+      </p>
+
+      <div class="shot" data-cap="Ticket #102 selected. The detail pane shows facilities' verification against lease 1 and the human resolution note recording payment in full. Checking has fallen to $160.00.">
+        <span class="tapme">Double-click to enlarge</span>
+        <img src="resolved_board_images/ticket-102-board.jpg" alt="Desk board with ticket 102 resolved">
+        <div class="cap">#102 resolved — rent verified against the lease and paid, balance $160.00</div>
+      </div>
+
+      <div class="grid">
+        <div class="kv"><div class="k">Agent disposition</div><div class="v">escalated</div></div>
+        <div class="kv"><div class="k">Final status</div><div class="v">resolved</div></div>
+        <div class="kv"><div class="k">Cash effect</div><div class="v neg">−$2,400.00</div></div>
+        <div class="kv"><div class="k">Stock effect</div><div class="v zero">none</div></div>
+      </div>
+
+      <table>
+        <tr><th>Desk</th><th>Tools used</th><th>What it contributed</th></tr>
+        <tr><td><b>Shift manager</b></td><td><code>get_ticket</code> <code>resolve_ticket</code></td>
+            <td>Asked facilities to verify <i>before</i> asking accounting to cost it.</td></tr>
+        <tr><td><b>Facilities</b></td><td><code>get_cash_and_obligations</code></td>
+            <td>Lease 1 confirms Elm City Properties, $2,400.00, due 2026-09-02, 2 days out. Flagged that the notice itself cannot be authenticated beyond the matching lease.</td></tr>
+        <tr><td><b>Accounting</b></td><td><code>get_cash_and_obligations</code></td>
+            <td>Coverable, but an overdue $840 invoice draws on the same account; both leaves $160.</td></tr>
+        <tr><td><b>Inventory</b></td><td>—</td><td>Correctly not consulted; no product involved.</td></tr>
+        <tr><td><b>Customer service</b></td><td>—</td><td>Correctly not consulted; the landlord is not a customer awaiting a reply.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===================== 103 ===================== -->
+  <div class="card">
+    <h2>
+      <span class="pill">Resolved</span>
+      Ticket #103 — Bulk hoodie discount
+      <span class="who">Yale AI Club · discount request</span>
+    </h2>
+    <div class="body">
+      <p class="outcome">
+        Declined as requested — only <b>8 of 20</b> CC-HOOD-NAVY size M exist. Offered the 8
+        in stock at <b>$50.00/unit</b>, which clears the $22.00 cost floor. No discount below
+        cost and <b>no cash moved</b>.
+      </p>
+
+      <div class="shot" data-cap="Ticket #103 selected. The detail pane records the 12-unit shortfall, the $50.00 price that clears the $22.00 cost floor, and that no cash moved. Checking is unchanged at $160.00.">
+        <span class="tapme">Double-click to enlarge</span>
+        <img src="resolved_board_images/ticket-103-board.jpg" alt="Desk board with ticket 103 resolved">
+        <div class="cap">#103 resolved — 8 of 20 offered above cost, no cash moved</div>
+      </div>
+
+      <div class="grid">
+        <div class="kv"><div class="k">Agent disposition</div><div class="v">escalated</div></div>
+        <div class="kv"><div class="k">Final status</div><div class="v">resolved</div></div>
+        <div class="kv"><div class="k">Cash effect</div><div class="v zero">$0.00</div></div>
+        <div class="kv"><div class="k">Stock effect</div><div class="v zero">none committed</div></div>
+      </div>
+
+      <table>
+        <tr><th>Desk</th><th>Tools used</th><th>What it contributed</th></tr>
+        <tr><td><b>Shift manager</b></td><td><code>get_ticket</code> <code>resolve_ticket</code></td>
+            <td>Asked inventory before accounting — pricing 20 units the shop cannot supply would be meaningless.</td></tr>
+        <tr><td><b>Inventory</b></td><td><code>get_ticket</code> <code>find_vendor</code></td>
+            <td>8 on hand against 20, shortfall 12; nothing on order; apparel lead time 5 days.</td></tr>
+        <tr><td><b>Accounting</b></td><td><code>get_ticket</code> <code>get_price_and_margin</code> <code>get_cash_and_obligations</code></td>
+            <td>$50.00/unit clears the $22.00 cost: $28.00 margin per hoodie, $560.00 on 20 units.</td></tr>
+        <tr><td><b>Customer service</b></td><td><code>get_ticket</code></td>
+            <td>Reply built on the real number — 8 available, 12 not, list $58, no quote yet recorded.</td></tr>
+        <tr><td><b>Facilities</b></td><td>—</td><td>Correctly not consulted.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===================== cash ===================== -->
+  <div class="card">
+    <h2><span class="pill cash">Cash</span> Reconciliation</h2>
+    <div class="body">
+      <table>
+        <tr><th>#</th><th>Movement</th><th class="num">Amount</th><th class="num">Balance</th></tr>
+        <tr><td>—</td><td><b>Opening checking balance</b> (after reset)</td>
+            <td class="num">—</td><td class="num"><b>$3,400.00</b></td></tr>
+        <tr><td>101</td><td>Paid invoice 501 — rush reprint of CC-TEE-WHITE S, Bulldog Print Co, 3 days overdue</td>
+            <td class="num">−$840.00</td><td class="num">$2,560.00</td></tr>
+        <tr><td>101</td><td>Booked 12 reprinted tees into stock (<code>adjust_stock</code> — goods, not cash)</td>
+            <td class="num">$0.00</td><td class="num">$2,560.00</td></tr>
+        <tr><td>102</td><td>Paid rent on lease 1 — Elm City Properties, verified against the lease</td>
+            <td class="num">−$2,400.00</td><td class="num">$160.00</td></tr>
+        <tr><td>103</td><td>No purchase — outbound sale, nothing left the shop</td>
+            <td class="num">$0.00</td><td class="num">$160.00</td></tr>
+        <tr class="total"><td></td><td><b>Closing checking balance</b></td>
+            <td class="num"><b>−$3,240.00</b></td><td class="num"><b>$160.00</b></td></tr>
+      </table>
+      <p class="outcome" style="margin-top:14px">
+        <code>$3,400.00 − $840.00 − $2,400.00 = $160.00</code>, matching
+        <code>cash_accounts.balance</code> exactly. Both payments appear in the
+        <code>payments</code> table under approver <b>Alexandria Rosenzweig</b>.
+      </p>
+    </div>
+  </div>
+
+  <footer class="page">
+    Campus Customs · HW 5 Task 9 · screenshots of the React board at
+    <code>localhost:5173</code> · data from <code>data/campus_customs_new.db</code>
+  </footer>
+</div>
+
+<div class="lb" id="lb">
+  <button class="close" id="lbclose">Close ✕</button>
+  <img id="lbimg" alt="">
+  <div class="lbcap" id="lbcap"></div>
+</div>
+
+<script>
+(function () {
+  var lb = document.getElementById('lb');
+  var img = document.getElementById('lbimg');
+  var cap = document.getElementById('lbcap');
+
+  function open(shot) {
+    var i = shot.querySelector('img');
+    img.src = i.getAttribute('src');
+    img.alt = i.getAttribute('alt');
+    cap.textContent = shot.getAttribute('data-cap') || '';
+    lb.classList.add('on');
+  }
+  function close() { lb.classList.remove('on'); }
+
+  Array.prototype.forEach.call(document.querySelectorAll('.shot'), function (shot) {
+    // Double-click on desktop; dblclick also fires for a double-tap on touch.
+    shot.addEventListener('dblclick', function (e) { e.preventDefault(); open(shot); });
+
+    // Explicit double-tap handling for touch devices that do not synthesise dblclick.
+    var last = 0;
+    shot.addEventListener('touchend', function (e) {
+      var now = Date.now();
+      if (now - last < 400) { e.preventDefault(); open(shot); }
+      last = now;
+    }, { passive: false });
+  });
+
+  lb.addEventListener('click', close);
+  document.getElementById('lbclose').addEventListener('click', close);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+})();
+</script>
+</body>
+</html>

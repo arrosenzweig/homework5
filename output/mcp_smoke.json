@@ -1,0 +1,837 @@
+{
+  "assignment": "HW 5 \u2014 Task 4: MCP connection and tool smoke test",
+  "generated_at": "2026-10-15T02:19:32+00:00",
+  "mcp_connection": {
+    "config_file": ".mcp.json",
+    "server_name": "campus-customs",
+    "command": "python",
+    "args": [
+      "mcp_server/server.py"
+    ],
+    "transport": "stdio",
+    "tools_advertised": [
+      "check_stock",
+      "get_price_and_margin",
+      "get_cash_and_obligations",
+      "list_open_tickets",
+      "get_ticket",
+      "find_vendor",
+      "record_payment",
+      "adjust_stock",
+      "resolve_ticket",
+      "post_desk_note"
+    ],
+    "note": "Every call below was made over the MCP protocol against a server launched from .mcp.json, not by importing the Python functions."
+  },
+  "database_under_test": {
+    "path": "data/campus_customs_new.db",
+    "sha256": "896b24cbe741db3bd4866af9548a4e88edaa286c05f194c4642d557edeea72fe",
+    "note": "Each tool result was compared against a direct SQL read of this file."
+  },
+  "summary": {
+    "total_tests": 11,
+    "passed": 11,
+    "failed": 0,
+    "tools_covered": [
+      "check_stock",
+      "get_cash_and_obligations",
+      "get_price_and_margin"
+    ],
+    "all_three_tools_tested": true
+  },
+  "tests": [
+    {
+      "id": "T-01",
+      "result": "PASS",
+      "tool": "check_stock",
+      "ticket": "101 \u2014 customer order, Tauhid Zaman",
+      "vibe_coder_prompt": "A customer wants one white Bulldog tee in size small. Do we have it?",
+      "tool_arguments": {
+        "sku": "CC-TEE-WHITE",
+        "size": "S",
+        "requested_qty": 1
+      },
+      "tool_output": {
+        "sku": "CC-TEE-WHITE",
+        "found": true,
+        "requested_size": "S",
+        "requested_qty": 1,
+        "rows": [
+          {
+            "sku": "CC-TEE-WHITE",
+            "name": "Classic Bulldog Tee",
+            "size": "S",
+            "qty": 0,
+            "location": "Aisle B",
+            "in_stock": false,
+            "can_fill": false,
+            "shortfall": 1
+          }
+        ],
+        "total_on_hand": 0,
+        "summary": "Classic Bulldog Tee (CC-TEE-WHITE) size S is OUT OF STOCK: 0 on hand in Aisle B."
+      },
+      "database_verification": {
+        "database_file": "data/campus_customs_new.db",
+        "query": "SELECT qty, location FROM inventory WHERE sku='CC-TEE-WHITE' AND size='S'",
+        "field_checks": [
+          {
+            "field": "found",
+            "expected_from_database": true,
+            "actual_from_mcp_tool": true,
+            "match": true
+          },
+          {
+            "field": "rows[0].qty",
+            "expected_from_database": 0,
+            "actual_from_mcp_tool": 0,
+            "match": true
+          },
+          {
+            "field": "rows[0].location",
+            "expected_from_database": "Aisle B",
+            "actual_from_mcp_tool": "Aisle B",
+            "match": true
+          },
+          {
+            "field": "rows[0].in_stock",
+            "expected_from_database": false,
+            "actual_from_mcp_tool": false,
+            "match": true
+          },
+          {
+            "field": "rows[0].can_fill",
+            "expected_from_database": false,
+            "actual_from_mcp_tool": false,
+            "match": true
+          },
+          {
+            "field": "rows[0].shortfall",
+            "expected_from_database": 1,
+            "actual_from_mcp_tool": 1,
+            "match": true
+          }
+        ],
+        "all_fields_match": true
+      },
+      "what_this_proves": "The size the customer asked for is out of stock (0), even though the tee exists in other sizes."
+    },
+    {
+      "id": "T-02",
+      "result": "PASS",
+      "tool": "check_stock",
+      "ticket": "103 \u2014 price override, Yale AI Club",
+      "vibe_coder_prompt": "The Yale AI Club wants 20 navy hoodies in medium. Can we actually cover that order?",
+      "tool_arguments": {
+        "sku": "CC-HOOD-NAVY",
+        "size": "M",
+        "requested_qty": 20
+      },
+      "tool_output": {
+        "sku": "CC-HOOD-NAVY",
+        "found": true,
+        "requested_size": "M",
+        "requested_qty": 20,
+        "rows": [
+          {
+            "sku": "CC-HOOD-NAVY",
+            "name": "Basic Hoodie Big Yale",
+            "size": "M",
+            "qty": 8,
+            "location": "Aisle A",
+            "in_stock": true,
+            "can_fill": false,
+            "shortfall": 12
+          }
+        ],
+        "total_on_hand": 8,
+        "summary": "Basic Hoodie Big Yale (CC-HOOD-NAVY) size M has 8 on hand in Aisle A, short 12 of the 20 requested."
+      },
+      "database_verification": {
+        "database_file": "data/campus_customs_new.db",
+        "query": "SELECT qty FROM inventory WHERE sku='CC-HOOD-NAVY' AND size='M'",
+        "field_checks": [
+          {
+            "field": "found",
+            "expected_from_database": true,
+            "actual_from_mcp_tool": true,
+            "match": true
+          },
+          {
+            "field": "rows[0].qty",
+            "expected_from_database": 8,
+            "actual_from_mcp_tool": 8,
+            "match": true
+          },
+          {
+            "field": "rows[0].can_fill",
+            "expected_from_database": false,
+            "actual_from_mcp_tool": false,
+            "match": true
+          },
+          {
+            "field": "rows[0].shortfall",
+            "expected_from_database": 12,
+            "actual_from_mcp_tool": 12,
+            "match": true
+          }
+        ],
+        "all_fields_match": true
+      },
+      "what_this_proves": "Only 8 of the 20 requested hoodies exist; the shortfall of 12 is reported before any discount is discussed."
+    },
+    {
+      "id": "T-03",
+      "result": "PASS",
+      "tool": "check_stock",
+      "ticket": "103 \u2014 price override, Yale AI Club",
+      "vibe_coder_prompt": "What sizes of the navy hoodie do we carry, and how many of each?",
+      "tool_arguments": {
+        "sku": "CC-HOOD-NAVY"
+      },
+      "tool_output": {
+        "sku": "CC-HOOD-NAVY",
+        "found": true,
+        "requested_size": null,
+        "requested_qty": null,
+        "rows": [
+          {
+            "sku": "CC-HOOD-NAVY",
+            "name": "Basic Hoodie Big Yale",
+            "size": "S",
+            "qty": 4,
+            "location": "Aisle A",
+            "in_stock": true,
+            "can_fill": null,
+            "shortfall": null
+          },
+          {
+            "sku": "CC-HOOD-NAVY",
+            "name": "Basic Hoodie Big Yale",
+            "size": "M",
+            "qty": 8,
+            "location": "Aisle A",
+            "in_stock": true,
+            "can_fill": null,
+            "shortfall": null
+          },
+          {
+            "sku": "CC-HOOD-NAVY",
+            "name": "Basic Hoodie Big Yale",
+            "size": "L",
+            "qty": 14,
+            "location": "Aisle A",
+            "in_stock": true,
+            "can_fill": null,
+            "shortfall": null
+          },
+          {
+            "sku": "CC-HOOD-NAVY",
+            "name": "Basic Hoodie Big Yale",
+            "size": "XL",
+            "qty": 6,
+            "location": "Aisle A",
+            "in_stock": true,
+            "can_fill": null,
+            "shortfall": null
+          }
+        ],
+        "total_on_hand": 32,
+        "summary": "Basic Hoodie Big Yale (CC-HOOD-NAVY) has 32 units on hand across 4 size(s): S=4, M=8, L=14, XL=6."
+      },
+      "database_verification": {
+        "database_file": "data/campus_customs_new.db",
+        "query": "SELECT SUM(qty), COUNT(*) FROM inventory WHERE sku='CC-HOOD-NAVY'",
+        "field_checks": [
+          {
+            "field": "found",
+            "expected_from_database": true,
+            "actual_from_mcp_tool": true,
+            "match": true
+          },
+          {
+            "field": "total_on_hand",
+            "expected_from_database": 32,
+            "actual_from_mcp_tool": 32,
+            "match": true
+          },
+          {
+            "field": "len(rows)",
+            "expected_from_database": 4,
+            "actual_from_mcp_tool": 4,
+            "match": true
+          }
+        ],
+        "all_fields_match": true
+      },
+      "what_this_proves": "Totals across every size row match the database sum exactly."
+    },
+    {
+      "id": "T-04",
+      "result": "PASS",
+      "tool": "check_stock",
+      "ticket": "\u2014 anti-hallucination guard",
+      "vibe_coder_prompt": "Do we have any plaid scarves in stock?",
+      "tool_arguments": {
+        "sku": "CC-SCARF-PLAID"
+      },
+      "tool_output": {
+        "sku": "CC-SCARF-PLAID",
+        "found": false,
+        "requested_size": null,
+        "requested_qty": null,
+        "rows": [],
+        "total_on_hand": 0,
+        "summary": "CC-SCARF-PLAID is not in the inventory table. No stock data exists for it."
+      },
+      "database_verification": {
+        "database_file": "data/campus_customs_new.db",
+        "query": "SELECT COUNT(*) FROM inventory WHERE sku='CC-SCARF-PLAID'  -- returns 0",
+        "field_checks": [
+          {
+            "field": "found",
+            "expected_from_database": false,
+            "actual_from_mcp_tool": false,
+            "match": true
+          },
+          {
+            "field": "total_on_hand",
+            "expected_from_database": 0,
+            "actual_from_mcp_tool": 0,
+            "match": true
+          },
+          {
+            "field": "len(rows)",
+            "expected_from_database": 0,
+            "actual_from_mcp_tool": 0,
+            "match": true
+          }
+        ],
+        "all_fields_match": true
+      },
+      "what_this_proves": "A product that does not exist returns found=false instead of an invented stock figure."
+    },
+    {
+      "id": "T-05",
+      "result": "PASS",
+      "tool": "check_stock",
+      "ticket": "\u2014 anti-hallucination guard",
+      "vibe_coder_prompt": "Can I get a Yale cap in extra large?",
+      "tool_arguments": {
+        "sku": "CC-HAT-BLUE",
+        "size": "XL"
+      },
+      "tool_output": {
+        "sku": "CC-HAT-BLUE",
+        "found": true,
+        "requested_size": "XL",
+        "requested_qty": null,
+        "rows": [],
+        "total_on_hand": 0,
+        "summary": "CC-HAT-BLUE is in inventory but size XL is not stocked. Sizes on file: OS."
+      },
+      "database_verification": {
+        "database_file": "data/campus_customs_new.db",
+        "query": "SELECT size FROM inventory WHERE sku='CC-HAT-BLUE'  -- only 'OS' exists",
+        "field_checks": [
+          {
+            "field": "found",
+            "expected_from_database": true,
+            "actual_from_mcp_tool": true,
+            "match": true
+          },
+          {
+            "field": "len(rows)",
+            "expected_from_database": 0,
+            "actual_from_mcp_tool": 0,
+            "match": true
+          },
+          {
+            "field": "summary_contains",
+            "expected_from_database": "OS",
+            "actual_from_mcp_tool": "CC-HAT-BLUE is in inventory but size XL is not stocked. Sizes on file: OS.",
+            "match": true
+          }
+        ],
+        "all_fields_match": true
+      },
+      "what_this_proves": "A real SKU in an unstocked size returns no rows and names the sizes that do exist, rather than guessing."
+    },
+    {
+      "id": "T-06",
+      "result": "PASS",
+      "tool": "get_price_and_margin",
+      "ticket": "\u2014 catalogue pricing",
+      "vibe_coder_prompt": "What does the Crest Mug sell for, and what do we make on it?",
+      "tool_arguments": {
+        "sku": "CC-MUG-CREST"
+      },
+      "tool_output": {
+        "sku": "CC-MUG-CREST",
+        "found": true,
+        "unit_cost": 3.5,
+        "list_price": 14.0,
+        "margin_per_unit": 10.5,
+        "margin_pct": 75.0,
+        "qty": 1,
+        "list_line_total": 14.0,
+        "quote": null,
+        "summary": "CC-MUG-CREST: unit cost $3.50, list price $14.00, margin $10.50 (75.0%) per unit."
+      },
+      "database_verification": {
+        "database_file": "data/campus_customs_new.db",
+        "query": "SELECT unit_cost, list_price FROM pricing WHERE sku='CC-MUG-CREST'",
+        "field_checks": [
+          {
+            "field": "found",
+            "expected_from_database": true,
+            "actual_from_mcp_tool": true,
+            "match": true
+          },
+          {
+            "field": "unit_cost",
+            "expected_from_database": 3.5,
+            "actual_from_mcp_tool": 3.5,
+            "match": true
+          },
+          {
+            "field": "list_price",
+            "expected_from_database": 14.0,
+            "actual_from_mcp_tool": 14.0,
+            "match": true
+          },
+          {
+            "field": "margin_per_unit",
+            "expected_from_database": 10.5,
+            "actual_from_mcp_tool": 10.5,
+            "match": true
+          }
+        ],
+        "all_fields_match": true
+      },
+      "what_this_proves": "Cost and list price are read from the pricing table, and margin is derived from those two values only."
+    },
+    {
+      "id": "T-07",
+      "result": "PASS",
+      "tool": "get_price_and_margin",
+      "ticket": "103 \u2014 price override, Yale AI Club",
+      "vibe_coder_prompt": "The AI Club is asking for 20 hoodies at $35 each. Does that still work for us?",
+      "tool_arguments": {
+        "sku": "CC-HOOD-NAVY",
+        "qty": 20,
+        "proposed_unit_price": 35.0
+      },
+      "tool_output": {
+        "sku": "CC-HOOD-NAVY",
+        "found": true,
+        "unit_cost": 22.0,
+        "list_price": 58.0,
+        "margin_per_unit": 36.0,
+        "margin_pct": 62.07,
+        "qty": 20,
+        "list_line_total": 1160.0,
+        "quote": {
+          "proposed_unit_price": 35.0,
+          "discount_off_list": 23.0,
+          "discount_pct": 39.66,
+          "margin_per_unit": 13.0,
+          "margin_pct": 37.14,
+          "above_cost": true,
+          "line_total": 700.0,
+          "line_margin": 260.0
+        },
+        "summary": "CC-HOOD-NAVY: unit cost $22.00, list price $58.00, margin $36.00 (62.1%) per unit. At $35.00 (39.7% off list) the margin is $13.00/unit, ABOVE cost. For 20 unit(s): $700.00 revenue, $260.00 margin."
+      },
+      "database_verification": {
+        "database_file": "data/campus_customs_new.db",
+        "query": "SELECT unit_cost, list_price FROM pricing WHERE sku='CC-HOOD-NAVY'",
+        "field_checks": [
+          {
+            "field": "found",
+            "expected_from_database": true,
+            "actual_from_mcp_tool": true,
+            "match": true
+          },
+          {
+            "field": "unit_cost",
+            "expected_from_database": 22.0,
+            "actual_from_mcp_tool": 22.0,
+            "match": true
+          },
+          {
+            "field": "list_price",
+            "expected_from_database": 58.0,
+            "actual_from_mcp_tool": 58.0,
+            "match": true
+          },
+          {
+            "field": "quote.above_cost",
+            "expected_from_database": true,
+            "actual_from_mcp_tool": true,
+            "match": true
+          },
+          {
+            "field": "quote.margin_per_unit",
+            "expected_from_database": 13.0,
+            "actual_from_mcp_tool": 13.0,
+            "match": true
+          },
+          {
+            "field": "quote.line_total",
+            "expected_from_database": 700.0,
+            "actual_from_mcp_tool": 700.0,
+            "match": true
+          },
+          {
+            "field": "quote.line_margin",
+            "expected_from_database": 260.0,
+            "actual_from_mcp_tool": 260.0,
+            "match": true
+          }
+        ],
+        "all_fields_match": true
+      },
+      "what_this_proves": "A proposed bulk price is scored against the recorded $22.00 unit cost, not an assumed one."
+    },
+    {
+      "id": "T-08",
+      "result": "PASS",
+      "tool": "get_price_and_margin",
+      "ticket": "103 \u2014 price override, Yale AI Club",
+      "vibe_coder_prompt": "They're pushing for $20 per hoodie. Can we do that?",
+      "tool_arguments": {
+        "sku": "CC-HOOD-NAVY",
+        "qty": 20,
+        "proposed_unit_price": 20.0
+      },
+      "tool_output": {
+        "sku": "CC-HOOD-NAVY",
+        "found": true,
+        "unit_cost": 22.0,
+        "list_price": 58.0,
+        "margin_per_unit": 36.0,
+        "margin_pct": 62.07,
+        "qty": 20,
+        "list_line_total": 1160.0,
+        "quote": {
+          "proposed_unit_price": 20.0,
+          "discount_off_list": 38.0,
+          "discount_pct": 65.52,
+          "margin_per_unit": -2.0,
+          "margin_pct": -10.0,
+          "above_cost": false,
+          "line_total": 400.0,
+          "line_margin": -40.0
+        },
+        "summary": "CC-HOOD-NAVY: unit cost $22.00, list price $58.00, margin $36.00 (62.1%) per unit. At $20.00 (65.5% off list) the margin is $-2.00/unit, AT OR BELOW cost - this loses money. For 20 unit(s): $400.00 revenue, $-40.00 margin."
+      },
+      "database_verification": {
+        "database_file": "data/campus_customs_new.db",
+        "query": "SELECT unit_cost FROM pricing WHERE sku='CC-HOOD-NAVY'  -- 22.0",
+        "field_checks": [
+          {
+            "field": "found",
+            "expected_from_database": true,
+            "actual_from_mcp_tool": true,
+            "match": true
+          },
+          {
+            "field": "quote.above_cost",
+            "expected_from_database": false,
+            "actual_from_mcp_tool": false,
+            "match": true
+          },
+          {
+            "field": "quote.margin_per_unit",
+            "expected_from_database": -2.0,
+            "actual_from_mcp_tool": -2.0,
+            "match": true
+          },
+          {
+            "field": "quote.line_margin",
+            "expected_from_database": -40.0,
+            "actual_from_mcp_tool": -40.0,
+            "match": true
+          }
+        ],
+        "all_fields_match": true
+      },
+      "what_this_proves": "A below-cost ask is flagged above_cost=false with a negative margin, so the agent cannot agree to a loss."
+    },
+    {
+      "id": "T-09",
+      "result": "PASS",
+      "tool": "get_price_and_margin",
+      "ticket": "\u2014 anti-hallucination guard",
+      "vibe_coder_prompt": "How much is the Handsome Dan plush toy?",
+      "tool_arguments": {
+        "sku": "CC-PLUSH-DAN"
+      },
+      "tool_output": {
+        "sku": "CC-PLUSH-DAN",
+        "found": false,
+        "unit_cost": null,
+        "list_price": null,
+        "margin_per_unit": null,
+        "margin_pct": null,
+        "qty": 1,
+        "list_line_total": null,
+        "quote": null,
+        "summary": "CC-PLUSH-DAN has no row in the pricing table. There is no cost or list price on file, so no price can be quoted for it."
+      },
+      "database_verification": {
+        "database_file": "data/campus_customs_new.db",
+        "query": "SELECT COUNT(*) FROM pricing WHERE sku='CC-PLUSH-DAN'  -- returns 0",
+        "field_checks": [
+          {
+            "field": "found",
+            "expected_from_database": false,
+            "actual_from_mcp_tool": false,
+            "match": true
+          },
+          {
+            "field": "unit_cost",
+            "expected_from_database": null,
+            "actual_from_mcp_tool": null,
+            "match": true
+          },
+          {
+            "field": "list_price",
+            "expected_from_database": null,
+            "actual_from_mcp_tool": null,
+            "match": true
+          }
+        ],
+        "all_fields_match": true
+      },
+      "what_this_proves": "An unpriced product yields no price at all rather than a plausible invented one."
+    },
+    {
+      "id": "T-10",
+      "result": "PASS",
+      "tool": "get_cash_and_obligations",
+      "ticket": "102 \u2014 rent notice, Elm City Properties",
+      "vibe_coder_prompt": "The landlord emailed saying rent is due in two days. How much do we actually owe, and can we afford it right now?",
+      "tool_arguments": {},
+      "tool_output": {
+        "as_of": "2026-08-31",
+        "accounts": [
+          {
+            "name": "checking",
+            "balance": 3400.0,
+            "as_of": "2026-08-31"
+          }
+        ],
+        "total_cash": 3400.0,
+        "open_invoices": [
+          {
+            "invoice_id": 501,
+            "vendor_id": 1,
+            "vendor_name": "Bulldog Print Co",
+            "vendor_specialty": "apparel reprint",
+            "vendor_lead_days": 5,
+            "amount": 840.0,
+            "due_date": "2026-08-28",
+            "status": "open",
+            "description": "Rush reprint CC-TEE-WHITE S",
+            "days_until_due": -3,
+            "is_overdue": true,
+            "expected_delivery_date": "2026-09-02"
+          }
+        ],
+        "leases": [
+          {
+            "lease_id": 1,
+            "space_name": "Chapel Street shop",
+            "landlord": "Elm City Properties",
+            "monthly_rent": 2400.0,
+            "next_due": "2026-09-02",
+            "days_until_due": 2,
+            "is_overdue": false,
+            "notes": null
+          }
+        ],
+        "total_invoices_due": 840.0,
+        "total_rent_due": 2400.0,
+        "total_obligations": 3240.0,
+        "remaining_if_all_paid": 160.0,
+        "can_cover_all": true,
+        "recorded_payments": 0,
+        "summary": "As of 2026-08-31: $3400.00 cash across 1 account(s). 1 unpaid invoice(s) totalling $840.00, 1 already overdue. Rent on file totals $2400.00. Paying everything leaves $160.00. No payments have been recorded yet."
+      },
+      "database_verification": {
+        "database_file": "data/campus_customs_new.db",
+        "query": "SELECT balance FROM cash_accounts; SELECT monthly_rent, next_due, landlord FROM leases; SELECT date_today FROM desk",
+        "field_checks": [
+          {
+            "field": "as_of",
+            "expected_from_database": "2026-08-31",
+            "actual_from_mcp_tool": "2026-08-31",
+            "match": true
+          },
+          {
+            "field": "total_cash",
+            "expected_from_database": 3400.0,
+            "actual_from_mcp_tool": 3400.0,
+            "match": true
+          },
+          {
+            "field": "leases[0].monthly_rent",
+            "expected_from_database": 2400.0,
+            "actual_from_mcp_tool": 2400.0,
+            "match": true
+          },
+          {
+            "field": "leases[0].landlord",
+            "expected_from_database": "Elm City Properties",
+            "actual_from_mcp_tool": "Elm City Properties",
+            "match": true
+          },
+          {
+            "field": "leases[0].next_due",
+            "expected_from_database": "2026-09-02",
+            "actual_from_mcp_tool": "2026-09-02",
+            "match": true
+          },
+          {
+            "field": "total_rent_due",
+            "expected_from_database": 2400.0,
+            "actual_from_mcp_tool": 2400.0,
+            "match": true
+          },
+          {
+            "field": "total_invoices_due",
+            "expected_from_database": 840.0,
+            "actual_from_mcp_tool": 840.0,
+            "match": true
+          },
+          {
+            "field": "total_obligations",
+            "expected_from_database": 3240.0,
+            "actual_from_mcp_tool": 3240.0,
+            "match": true
+          },
+          {
+            "field": "remaining_if_all_paid",
+            "expected_from_database": 160.0,
+            "actual_from_mcp_tool": 160.0,
+            "match": true
+          },
+          {
+            "field": "recorded_payments",
+            "expected_from_database": 0,
+            "actual_from_mcp_tool": 0,
+            "match": true
+          }
+        ],
+        "all_fields_match": true
+      },
+      "what_this_proves": "Rent is verified at $2,400.00 from the lease (the email names no amount), the landlord matches the ticket requester, and the date comes from desk.date_today \u2014 not the system clock."
+    },
+    {
+      "id": "T-11",
+      "result": "PASS",
+      "tool": "get_cash_and_obligations",
+      "ticket": "101 \u2014 customer order, Tauhid Zaman",
+      "vibe_coder_prompt": "Is a reprint of that white tee already on order, and when would it land?",
+      "tool_arguments": {},
+      "tool_output": {
+        "as_of": "2026-08-31",
+        "accounts": [
+          {
+            "name": "checking",
+            "balance": 3400.0,
+            "as_of": "2026-08-31"
+          }
+        ],
+        "total_cash": 3400.0,
+        "open_invoices": [
+          {
+            "invoice_id": 501,
+            "vendor_id": 1,
+            "vendor_name": "Bulldog Print Co",
+            "vendor_specialty": "apparel reprint",
+            "vendor_lead_days": 5,
+            "amount": 840.0,
+            "due_date": "2026-08-28",
+            "status": "open",
+            "description": "Rush reprint CC-TEE-WHITE S",
+            "days_until_due": -3,
+            "is_overdue": true,
+            "expected_delivery_date": "2026-09-02"
+          }
+        ],
+        "leases": [
+          {
+            "lease_id": 1,
+            "space_name": "Chapel Street shop",
+            "landlord": "Elm City Properties",
+            "monthly_rent": 2400.0,
+            "next_due": "2026-09-02",
+            "days_until_due": 2,
+            "is_overdue": false,
+            "notes": null
+          }
+        ],
+        "total_invoices_due": 840.0,
+        "total_rent_due": 2400.0,
+        "total_obligations": 3240.0,
+        "remaining_if_all_paid": 160.0,
+        "can_cover_all": true,
+        "recorded_payments": 0,
+        "summary": "As of 2026-08-31: $3400.00 cash across 1 account(s). 1 unpaid invoice(s) totalling $840.00, 1 already overdue. Rent on file totals $2400.00. Paying everything leaves $160.00. No payments have been recorded yet."
+      },
+      "database_verification": {
+        "database_file": "data/campus_customs_new.db",
+        "query": "SELECT i.amount, i.due_date, i.description, v.name, v.lead_days FROM invoices i JOIN vendors v ON v.id=i.vendor_id WHERE i.id=501",
+        "field_checks": [
+          {
+            "field": "open_invoices[0].invoice_id",
+            "expected_from_database": 501,
+            "actual_from_mcp_tool": 501,
+            "match": true
+          },
+          {
+            "field": "open_invoices[0].amount",
+            "expected_from_database": 840.0,
+            "actual_from_mcp_tool": 840.0,
+            "match": true
+          },
+          {
+            "field": "open_invoices[0].due_date",
+            "expected_from_database": "2026-08-28",
+            "actual_from_mcp_tool": "2026-08-28",
+            "match": true
+          },
+          {
+            "field": "open_invoices[0].description",
+            "expected_from_database": "Rush reprint CC-TEE-WHITE S",
+            "actual_from_mcp_tool": "Rush reprint CC-TEE-WHITE S",
+            "match": true
+          },
+          {
+            "field": "open_invoices[0].vendor_name",
+            "expected_from_database": "Bulldog Print Co",
+            "actual_from_mcp_tool": "Bulldog Print Co",
+            "match": true
+          },
+          {
+            "field": "open_invoices[0].vendor_lead_days",
+            "expected_from_database": 5,
+            "actual_from_mcp_tool": 5,
+            "match": true
+          },
+          {
+            "field": "open_invoices[0].is_overdue",
+            "expected_from_database": true,
+            "actual_from_mcp_tool": true,
+            "match": true
+          }
+        ],
+        "all_fields_match": true
+      },
+      "what_this_proves": "Invoice 501 is already a rush reprint of CC-TEE-WHITE S, so a second reorder would duplicate it \u2014 and it is overdue and unpaid."
+    }
+  ]
+}

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campus Customs — Desk</title>
+<style>
+  :root{--yale:#00356b;--line:#d8dee6;--muted:#5b6673;--bg:#f4f6f9;
+        --ok:#1d7a4c;--warn:#8a6d1f;--bad:#a33a3a}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:#13171c;
+       font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1000px;margin:0 auto;padding:24px 18px 60px}
+  header{background:var(--yale);color:#fff;border-radius:12px;padding:20px 24px;margin-bottom:18px}
+  header h1{margin:0 0 4px;font-size:22px}
+  header p{margin:0;opacity:.88;font-size:14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+  .card h2{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .big{font-size:28px;font-weight:700;color:var(--yale);line-height:1.2}
+  .sub{color:var(--muted);font-size:13px;margin-top:2px}
+  button{appearance:none;border:0;border-radius:7px;background:var(--yale);color:#fff;
+         font:inherit;font-size:14px;font-weight:600;padding:9px 15px;cursor:pointer;margin:3px 4px 3px 0}
+  button:hover{background:#024a8f} button:disabled{background:#9aa5b1;cursor:not-allowed}
+  button.ghost{background:#e8ecf2;color:var(--yale)} button.ghost:hover{background:#dbe2ec}
+  button.danger{background:#8a3b3b} button.danger:hover{background:#6f2f2f}
+  button.go{background:var(--ok)} button.go:hover{background:#166139}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #edf0f4;vertical-align:top}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;text-transform:uppercase}
+  .tag.open{background:#fdf8e9;color:var(--warn)} .tag.resolved{background:#eef8f2;color:var(--ok)}
+  pre{background:#0f1720;color:#dbe6f0;border-radius:8px;padding:12px 14px;overflow:auto;
+      font-size:12.5px;max-height:360px;margin:0}
+  .feed{max-height:380px;overflow:auto;font-size:13.5px}
+  .ev{padding:8px 0;border-bottom:1px solid #edf0f4}
+  .ev .who{font-weight:700;color:var(--yale)}
+  .ev .kind{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-left:6px}
+  .ev .tool{background:#f2eefc;color:#5b3fa8;border-radius:4px;padding:1px 6px;font-size:12px;font-weight:600}
+  .ev .said{color:#3c4654;margin-top:3px}
+  .ev.write .tool{background:#fdf8e9;color:var(--warn)}
+  .ev.refused .said{color:var(--bad)}
+  label{display:block;font-size:12px;color:var(--muted);margin:8px 0 3px;font-weight:600}
+  input,select{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:6px;font:inherit;font-size:14px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .note{font-size:12.5px;color:var(--muted);margin-top:10px}
+  .status{margin-top:10px;font-size:13.5px;padding:9px 12px;border-radius:7px;display:none}
+  .status.ok{display:block;background:#eef8f2;color:var(--ok)}
+  .status.err{display:block;background:#fdf3f3;color:var(--bad)}
+  .span2{grid-column:1/-1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Campus Customs — Desk</h1>
+    <p>Agent team back office. Every figure here is read through the campus-customs MCP server.</p>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Checking balance</h2>
+      <div class="big" id="bal">—</div>
+      <div class="sub" id="balsub">loading…</div>
+      <button class="ghost" onclick="loadBalance()">Refresh</button>
+    </div>
+
+    <div class="card">
+      <h2>Run the team</h2>
+      <p class="sub" style="margin-bottom:8px">Picks a random open ticket and works it end to end.</p>
+      <button class="go" id="runbtn" onclick="runTeam()">Run on random ticket</button>
+      <button class="danger" onclick="resetDb()">Reset database</button>
+      <div class="status" id="runstatus"></div>
+    </div>
+
+    <div class="card span2">
+      <h2>Tickets</h2>
+      <table id="tickets"><tbody><tr><td class="sub">loading…</td></tr></tbody></table>
+      <button class="ghost" onclick="loadTickets()">Refresh</button>
+    </div>
+
+    <div class="card span2">
+      <h2>Approve a payment or purchase</h2>
+      <div class="row">
+        <div>
+          <label>Action</label>
+          <select id="action" onchange="toggleAction()">
+            <option value="payment">Payment — settle a bill</option>
+            <option value="purchase">Purchase — book stock in</option>
+          </select>
+        </div>
+        <div><label>Approved by</label><input id="approver" value="Alexandria Rosenzweig"></div>
+      </div>
+      <div id="payfields">
+        <div class="row">
+          <div><label>Kind</label>
+            <select id="kind"><option value="invoice">invoice</option><option value="rent">rent</option></select>
+          </div>
+          <div><label>Reference id</label><input id="refid" value="501"></div>
+        </div>
+        <div class="row">
+          <div><label>Amount</label><input id="amount" value="840.00"></div>
+          <div><label>Account</label><input id="account" value="checking"></div>
+        </div>
+      </div>
+      <div id="buyfields" style="display:none">
+        <div class="row">
+          <div><label>SKU</label><input id="sku" value="CC-TEE-WHITE"></div>
+          <div><label>Size</label><input id="size" value="S"></div>
+        </div>
+        <div class="row">
+          <div><label>Quantity received</label><input id="qty" value="12"></div>
+          <div><label>Reason</label><input id="reason" value="Reprint delivered"></div>
+        </div>
+      </div>
+      <button class="go" onclick="approve()" style="margin-top:12px">Approve</button>
+      <div class="status" id="approvestatus"></div>
+      <p class="note">Approval does not bypass the MCP safety checks. A payment that would
+        overdraw the account, pay twice, or pay the wrong amount is still refused.</p>
+    </div>
+
+    <div class="card span2">
+      <h2>Recent agent events</h2>
+      <div class="feed" id="feed"><span class="sub">loading…</span></div>
+      <button class="ghost" onclick="loadEvents()">Refresh</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const money = n => n == null ? '—' : '$' + Number(n).toFixed(2);
+
+function say(el, msg, ok){ const e = $(el); e.textContent = msg; e.className = 'status ' + (ok ? 'ok' : 'err'); }
+
+async function loadBalance(){
+  const r = await (await fetch('/api/balance')).json();
+  $('bal').textContent = money(r.balance);
+  $('balsub').textContent = `as of ${r.as_of} · ${money(r.total_obligations)} owed · `
+    + `${money(r.remaining_if_all_paid)} left if all paid · ${r.payments_recorded} payment(s) recorded`;
+}
+
+async function loadTickets(){
+  const r = await (await fetch('/api/tickets')).json();
+  const rows = r.tickets.map(t => `<tr>
+      <td><b>#${t.ticket_id}</b></td>
+      <td>${t.subject}<div class="sub">${t.type} · ${t.requester}</div></td>
+      <td><span class="tag ${t.is_open ? 'open' : 'resolved'}">${t.is_open ? 'open' : t.status}</span></td>
+    </tr>`).join('');
+  $('tickets').innerHTML = `<thead><tr><th></th><th>Ticket</th><th>State</th></tr></thead>
+    <tbody>${rows}</tbody>`;
+}
+
+async function loadEvents(){
+  const r = await (await fetch('/api/events?limit=40')).json();
+  if(!r.events.length){ $('feed').innerHTML = '<span class="sub">No events yet.</span>'; return; }
+  $('feed').innerHTML = r.events.slice().reverse().map(e => {
+    const cls = (e.is_write ? ' write' : '') + (e.ok === false ? ' refused' : '');
+    const tool = e.tool ? `<span class="tool">${e.tool}</span>` : '';
+    const to   = e.delegated_to ? `<span class="tool">→ ${e.delegated_to}</span>` : '';
+    return `<div class="ev${cls}">
+      <span class="who">${e.agent || 'shift'}</span>${tool}${to}
+      <span class="kind">${e.event}${e.ticket_id ? ' · #' + e.ticket_id : ''}</span>
+      <div class="said">${(e.said || '').toString().slice(0,260)}</div>
+    </div>`;
+  }).join('');
+}
+
+async function runTeam(){
+  const b = $('runbtn'); b.disabled = true; b.textContent = 'Running…';
+  say('runstatus', 'Working a ticket — this takes about 30 seconds.', true);
+  try{
+    const r = await (await fetch('/api/run', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({approver: $('approver').value})})).json();
+    if(r.ran === false){ say('runstatus', r.reason, false); }
+    else {
+      say('runstatus', `#${r.ticket_id} → ${r.disposition.toUpperCase()}: ${r.decision} `
+        + `(desks: ${r.specialists_consulted.join(', ')} · ${r.tokens} tokens · ${money(r.money_moved)} moved)`, true);
+    }
+  }catch(err){ say('runstatus', String(err), false); }
+  b.disabled = false; b.textContent = 'Run on random ticket';
+  loadTickets(); loadEvents(); loadBalance();
+}
+
+function toggleAction(){
+  const pay = $('action').value === 'payment';
+  $('payfields').style.display = pay ? '' : 'none';
+  $('buyfields').style.display = pay ? 'none' : '';
+}
+
+async function approve(){
+  const action = $('action').value;
+  const body = {action, approved_by: $('approver').value};
+  if(action === 'payment'){
+    Object.assign(body, {kind: $('kind').value, ref_id: Number($('refid').value),
+      amount: Number($('amount').value), account: $('account').value});
+  } else {
+    Object.assign(body, {sku: $('sku').value, size: $('size').value,
+      qty: Number($('qty').value), reason: $('reason').value});
+  }
+  try{
+    const res = await fetch('/api/approve', {method:'POST',
+      headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+    const r = await res.json();
+    if(!res.ok){ say('approvestatus', r.detail || 'Request rejected', false); }
+    else { say('approvestatus', (r.executed ? 'DONE — ' : 'REFUSED — ') + r.message, r.executed); }
+  }catch(err){ say('approvestatus', String(err), false); }
+  loadBalance(); loadTickets(); loadEvents();
+}
+
+async function resetDb(){
+  const r = await (await fetch('/api/reset', {method:'POST'})).json();
+  say('runstatus', `Database reset. Balance ${money(r.balance_now)}, `
+    + `${r.open_tickets_now} open ticket(s). Audit trail preserved.`, true);
+  loadBalance(); loadTickets(); loadEvents();
+}
+
+loadBalance(); loadTickets(); loadEvents();
+</script>
+</body>
+</html>

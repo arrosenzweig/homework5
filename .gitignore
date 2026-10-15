@@ -1,0 +1,44 @@
+# --- Secrets --------------------------------------------------------------
+# Never commit a real key. .env.example is the template that IS committed.
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# --- Python ---------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Node / frontend ------------------------------------------------------
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.local
+npm-debug.log*
+yarn-error.log*
+
+# --- OS / editor ----------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+
+# --- Not ignored, deliberately --------------------------------------------
+# data/*.db           both database files are committed so graders can run the app
+# output/*            every deliverable in output/ is committed, including the
+#                     append-only audit trail
+
+# --- Local tooling / source archives --------------------------------------
+# Editor and agent-harness config, and the original download of the data pack.
+# The databases themselves are committed under data/.
+.claude/
+*.zip

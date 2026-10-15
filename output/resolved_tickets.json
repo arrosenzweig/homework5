@@ -1,0 +1,242 @@
+{
+  "shift_date": "2026-08-31",
+  "approver": "Alexandria Rosenzweig",
+  "database": "data/campus_customs_new.db",
+  "opening_checking_balance": 3400.00,
+  "closing_checking_balance": 160.00,
+  "total_cash_moved": 3240.00,
+  "tickets_resolved": 3,
+  "note": "Every agent run escalated rather than spending. All three tickets reached 'resolved' only after a named human approved the money that moved.",
+  "resolved_tickets": [
+    {
+      "ticket_id": 101,
+      "type": "customer_order",
+      "requester": "Tauhid Zaman",
+      "subject": "Bulldog tee",
+      "agent_run_id": "run-824d84076d47",
+      "agent_disposition": "escalated",
+      "final_status": "resolved",
+      "outcome": "Paid the overdue $840.00 reprint invoice to release the rush reprint, booked 12 units of CC-TEE-WHITE size S into stock, and closed the order as fillable.",
+      "cash_effect": -840.00,
+      "stock_effect": "CC-TEE-WHITE size S: 0 -> 12 units",
+      "tokens": 41282,
+      "model_requests": 13,
+      "agent_contributions": [
+        {
+          "agent": "boss",
+          "role": "Read the ticket, routed it to three desks, and made the call",
+          "tools_used": ["get_ticket", "resolve_ticket"],
+          "contribution": "One get_ticket call returned the ticket plus stock (S=0), pricing, and linked invoice 501 with its vendor. Delegated to inventory, then accounting, then customer service last, and closed the ticket as escalated rather than authorising payment."
+        },
+        {
+          "agent": "inventory",
+          "role": "Established whether the order could be filled and when",
+          "tools_used": ["get_ticket", "find_vendor"],
+          "delegated_question": "CC-TEE-WHITE size S has stock 0 with shortfall 1. Linked invoice #501 is an overdue $840 rush reprint to Bulldog Print Co, expected delivery 2026-09-02. Can this order be filled after that reprint, and is the expected date still valid?",
+          "finding": "Stock is 0 with a shortfall of 1. Invoice 501 is specifically a rush reprint of CC-TEE-WHITE S, so the order can be filled once that reprint is received and booked — but the invoice record does not confirm the delivery date.",
+          "facts_used": [
+            "get_ticket: ticket #101 requests CC-TEE-WHITE size S qty=1; linked stock qty=0, shortfall=1",
+            "get_ticket: invoice #501 description='Rush reprint CC-TEE-WHITE S', expected_delivery_date=2026-09-02, status=open, due_date=2026-08-28, is_overdue=true, amount=$840.00, vendor=Bulldog Print Co",
+            "find_vendor: Bulldog Print Co, apparel reprint, lead_days=5, open invoice total $840.00"
+          ]
+        },
+        {
+          "agent": "accounting",
+          "role": "Costed the payment against everything drawing on the same account",
+          "tools_used": ["get_ticket", "get_cash_and_obligations"],
+          "delegated_question": "Should the shop pay invoice #501 now to help unblock the reprint, or does the cash/payment data require human approval?",
+          "finding": "Checking holds $3,400.00. Invoice 501 is open and overdue at $840.00 (due 2026-08-28); rent of $2,400.00 is due 2026-09-02. Paying both leaves $160.00, so the decision requires human approval.",
+          "facts_used": [
+            "get_cash_and_obligations: as_of=2026-08-31; checking balance=$3400.00",
+            "get_cash_and_obligations: invoice #501 $840.00, due 2026-08-28, days_until_due=-3, is_overdue=true",
+            "get_cash_and_obligations: rent $2400.00, due 2026-09-02, days_until_due=2"
+          ]
+        },
+        {
+          "agent": "customer_service",
+          "role": "Drafted the reply, consulted last so it could not invent a date",
+          "tools_used": ["get_ticket"],
+          "delegated_question": "Tell Tauhid Zaman the position: size S has 0 in stock, reprint invoice #501 is overdue, delivery expected 2026-09-02 but not confirmed.",
+          "finding": "The requested size S is out of stock and the linked reprint has an expected delivery of 2026-09-02 that is not confirmed. Fulfilment should not be promised.",
+          "facts_used": [
+            "get_ticket: requester Tauhid Zaman, ticket #101",
+            "get_ticket: CC-TEE-WHITE size S quantity 1, stock qty=0, shortfall=1",
+            "get_ticket: linked invoice #501 expected_delivery_date=2026-09-02, status=open, is_overdue=true"
+          ]
+        },
+        { "agent": "facilities", "role": "Not consulted — no lease or premises question on this ticket", "tools_used": [], "contribution": "Correctly skipped. Consulting it would have cost a model round trip for nothing." }
+      ],
+      "manual_approvals": [
+        {
+          "action": "payment",
+          "tool": "record_payment",
+          "kind": "invoice",
+          "ref_id": 501,
+          "amount": 840.00,
+          "account": "checking",
+          "approved_by": "Alexandria Rosenzweig",
+          "memo": "T101: release overdue reprint for Tauhid Zaman",
+          "result": "executed",
+          "balance_before": 3400.00,
+          "balance_after": 2560.00,
+          "why": "The agents established the reprint was already on order but would not pay on their own authority with rent two days out. A human accepted the $160 end position in exchange for clearing a 3-day-overdue bill and unblocking the customer."
+        },
+        {
+          "action": "purchase",
+          "tool": "adjust_stock",
+          "sku": "CC-TEE-WHITE",
+          "size": "S",
+          "qty": 12,
+          "approved_by": "Alexandria Rosenzweig",
+          "reason": "T101: reprint received from Bulldog Print Co",
+          "result": "executed",
+          "stock_before": 0,
+          "stock_after": 12,
+          "cash_effect": 0.00,
+          "why": "Booking received goods in is a stock movement, not a cash movement — the $840 had already been paid on the invoice."
+        }
+      ]
+    },
+    {
+      "ticket_id": 102,
+      "type": "rent_notice",
+      "requester": "Elm City Properties",
+      "subject": "Rent due",
+      "agent_run_id": "run-ce7ce48c8cb6",
+      "agent_disposition": "escalated",
+      "final_status": "resolved",
+      "outcome": "Rent verified at $2,400.00 against lease 1 — the emailed notice named no amount — then paid in full after human approval.",
+      "cash_effect": -2400.00,
+      "stock_effect": "none",
+      "tokens": 22577,
+      "model_requests": 8,
+      "agent_contributions": [
+        {
+          "agent": "boss",
+          "role": "Routed verification before affordability, and decided",
+          "tools_used": ["get_ticket", "resolve_ticket"],
+          "contribution": "Pulled the ticket with lease 1 attached, asked facilities to verify the claim and accounting to cost it, then escalated rather than paying. Consulted only two desks — no stock question exists on this ticket."
+        },
+        {
+          "agent": "facilities",
+          "role": "Verified the landlord's claim against the lease on file",
+          "tools_used": ["get_cash_and_obligations"],
+          "delegated_question": "For lease 1 at the Chapel Street shop, landlord Elm City Properties, monthly rent $2400.00, next due 2026-09-02 (2 days): is the rent notice genuine and what does the lease require?",
+          "finding": "The lease record confirms lease 1 for the Chapel Street shop: landlord Elm City Properties, monthly rent $2,400.00, next due 2026-09-02, 2 days remaining as of 2026-08-31. It flagged that the notice itself cannot be independently authenticated beyond the matching lease record.",
+          "facts_used": [
+            "get_cash_and_obligations: as_of=2026-08-31",
+            "get_cash_and_obligations: lease_id=1, space=Chapel Street shop, landlord=Elm City Properties, monthly_rent=2400.00, next_due=2026-09-02, days_until_due=2"
+          ]
+        },
+        {
+          "agent": "accounting",
+          "role": "Costed the verified rent against competing obligations",
+          "tools_used": ["get_cash_and_obligations"],
+          "delegated_question": "For the verified lease 1 rent due 2026-09-02, amount $2400.00 to Elm City Properties, can the shop afford payment now, and should it be paid now?",
+          "finding": "Checking holds $3,400.00. The verified $2,400.00 rent is due in 2 days and is technically coverable, but an overdue $840.00 invoice is also outstanding and paying both would leave only $160.00.",
+          "facts_used": [
+            "get_cash_and_obligations: checking balance=$3400.00",
+            "get_cash_and_obligations: lease 1, Elm City Properties, rent=$2400.00, due=2026-09-02, days_until_due=2, is_overdue=false",
+            "get_cash_and_obligations: invoice 501 amount=$840.00, overdue"
+          ]
+        },
+        { "agent": "inventory", "role": "Not consulted — no product on this ticket", "tools_used": [], "contribution": "Correctly skipped." },
+        { "agent": "customer_service", "role": "Not consulted — the landlord is not a customer awaiting a drafted reply", "tools_used": [], "contribution": "Correctly skipped." }
+      ],
+      "manual_approvals": [
+        {
+          "action": "payment",
+          "tool": "record_payment",
+          "kind": "rent",
+          "ref_id": 1,
+          "amount": 2400.00,
+          "account": "checking",
+          "approved_by": "Alexandria Rosenzweig",
+          "memo": "T102: rent verified against lease 1",
+          "result": "executed",
+          "balance_before": 2560.00,
+          "balance_after": 160.00,
+          "why": "The amount paid came from leases.monthly_rent, not from the email, which named no figure at all. Facilities verified the landlord matched the lease before any money moved."
+        }
+      ]
+    },
+    {
+      "ticket_id": 103,
+      "type": "price_override",
+      "requester": "Yale AI Club",
+      "subject": "Bulk hoodie discount",
+      "agent_run_id": "run-4aead284d671",
+      "agent_disposition": "escalated",
+      "final_status": "resolved",
+      "outcome": "Bulk order of 20 declined on supply: only 8 of 20 CC-HOOD-NAVY size M exist. Offered the 8 in stock at $50.00/unit, which clears the $22.00 cost floor. No discount approved below cost and no cash moved.",
+      "cash_effect": 0.00,
+      "stock_effect": "none — stock not committed until the club accepts",
+      "tokens": 43259,
+      "model_requests": 14,
+      "agent_contributions": [
+        {
+          "agent": "boss",
+          "role": "Routed supply before price, then decided",
+          "tools_used": ["get_ticket", "resolve_ticket"],
+          "contribution": "Asked inventory before accounting — the ticket presents as a pricing question but the shop cannot supply the order, so pricing 20 units would have been meaningless. Consulted customer service last."
+        },
+        {
+          "agent": "inventory",
+          "role": "Exposed the shortfall that reframed the whole ticket",
+          "tools_used": ["get_ticket", "find_vendor"],
+          "delegated_question": "CC-HOOD-NAVY size M has 8 in stock for a requested quantity of 20 (shortfall 12). Can we supply the missing 12, and if so when? Is any reprint or restock already on order?",
+          "finding": "8 on hand against 20 requested, a shortfall of 12. No invoice or restock is linked to the ticket, so nothing is already on order. The apparel vendor's lead time is 5 days.",
+          "facts_used": [
+            "get_ticket: ticket #103, CC-HOOD-NAVY size M qty=8, requested qty=20, shortfall=12, invoice_id=null",
+            "find_vendor: Bulldog Print Co, apparel reprint, lead_days=5, open invoice total=$840.00"
+          ]
+        },
+        {
+          "agent": "accounting",
+          "role": "Established the discount floor and scored a specific price",
+          "tools_used": ["get_ticket", "get_price_and_margin", "get_cash_and_obligations"],
+          "delegated_question": "What bulk unit price, if any, clears cost and is acceptable, and should this discount be escalated given the reprint?",
+          "finding": "$50.00 per unit clears cost: $8.00 (13.79%) below the $58.00 list, leaving $28.00 margin per hoodie and $560.00 total margin on 20 units. Flagged that the vendor already has an overdue $840.00 invoice.",
+          "facts_used": [
+            "get_ticket #103: stock qty=8, shortfall=12, unit cost=$22.00, list price=$58.00",
+            "get_price_and_margin: proposed $50.00 x20, discount=$8.00/unit (13.79%), margin=$28.00/unit, line margin=$560.00, above_cost=true",
+            "get_cash_and_obligations: as_of 2026-08-31, checking $3400.00"
+          ]
+        },
+        {
+          "agent": "customer_service",
+          "role": "Drafted the reply around the real number",
+          "tools_used": ["get_ticket"],
+          "delegated_question": "20 size-M hoodies requested; 8 on hand and 12 require a reprint with a 5-day lead. $50/hoodie clears the $22 cost.",
+          "finding": "8 size-M hoodies are on hand against a 20-unit request, leaving 12 unavailable. List price is $58 per hoodie and no bulk quote is recorded yet.",
+          "facts_used": [
+            "get_ticket: ticket #103 requester Yale AI Club, SKU CC-HOOD-NAVY, size M, requested qty 20",
+            "get_ticket: linked stock size M qty 8, shortfall 12",
+            "get_ticket: list price $58.00 per hoodie; no quote recorded"
+          ]
+        },
+        { "agent": "facilities", "role": "Not consulted — no lease or premises question", "tools_used": [], "contribution": "Correctly skipped." }
+      ],
+      "manual_approvals": [
+        {
+          "action": "none",
+          "result": "no approval required",
+          "cash_effect": 0.00,
+          "why": "This is an outbound sale, so no money leaves the shop. Stock was deliberately not committed with adjust_stock: reserving the 8 before the Yale AI Club accepts would strand inventory that another customer could buy."
+        }
+      ]
+    }
+  ],
+  "cash_reconciliation": {
+    "opening_balance": 3400.00,
+    "movements": [
+      { "ticket_id": 101, "description": "Paid invoice 501 — rush reprint of CC-TEE-WHITE S, Bulldog Print Co, 3 days overdue", "amount": -840.00, "running_balance": 2560.00 },
+      { "ticket_id": 101, "description": "Booked 12 reprinted tees into stock (adjust_stock — no cash effect)", "amount": 0.00, "running_balance": 2560.00 },
+      { "ticket_id": 102, "description": "Paid rent on lease 1 — Elm City Properties, verified against the lease, due 2026-09-02", "amount": -2400.00, "running_balance": 160.00 },
+      { "ticket_id": 103, "description": "No purchase — outbound sale declined on supply; no money left the shop", "amount": 0.00, "running_balance": 160.00 }
+    ],
+    "closing_balance": 160.00,
+    "verified_against": "cash_accounts.balance = 160.00",
+    "arithmetic": "3400.00 - 840.00 - 2400.00 = 160.00"
+  }
+}

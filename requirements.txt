@@ -1,0 +1,24 @@
+# Campus Customs — Python dependencies
+#
+#   pip install -r requirements.txt
+#
+# Python 3.11 or newer. Developed and tested on 3.14.
+
+# --- MCP server -----------------------------------------------------------
+# FastMCP builds the campus-customs server in mcp_server/.
+fastmcp==4.1.0
+
+# --- Agent team -----------------------------------------------------------
+# Pydantic AI ships as pydantic-ai-slim; the OpenAI extra supplies the model
+# class used to reach the Portkey gateway.
+pydantic-ai-slim[openai]==2.54.0
+pydantic==2.13.5
+openai==3.26.0
+
+# --- Backend --------------------------------------------------------------
+fastapi==0.142.4
+uvicorn[standard]==0.54.0
+
+# --- Configuration --------------------------------------------------------
+# Loads PORTKEY_API_KEY from .env (see .env.example).
+python-dotenv==1.2.4

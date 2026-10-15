@@ -1,0 +1,35 @@
+{
+  "run_id": "run-4aead284d671",
+  "shift_date": "2026-08-31",
+  "approver": "Alexandria Rosenzweig",
+  "tickets_seen": 1,
+  "tickets_handled": 1,
+  "resolutions": [
+    {
+      "ticket_id": 103,
+      "disposition": "escalated",
+      "decision": "Escalated for human approval. Only 8 of 20 size-M hoodies are available; the remaining 12 require a vendor reprint with a 5-day lead time. A $50 unit price clears the $22 cost, but the order and discount should not be committed while the vendor has an overdue $840 invoice and paying recorded obligations would leave $160 cash.",
+      "specialists_consulted": [
+        "inventory",
+        "accounting",
+        "customer_service"
+      ],
+      "actions_taken": [
+        "resolve_ticket: ticket #103 escalated successfully"
+      ],
+      "customer_message": "Yale AI Club, we can set aside 8 size-M Yale hoodies now. The remaining 12 are not currently available, so we need to confirm the reprint and vendor timing before committing to the full order. The listed price is $58 per hoodie, and your bulk pricing request is still under review. We will follow up once the reprint and pricing are confirmed; no calendar date is promised.",
+      "money_moved": 0.0,
+      "needs_human": true,
+      "human_question": "May we commit to the 20-hoodie order at $50 each and authorize the 12-unit reprint despite the vendor's overdue $840 invoice and the resulting cash position?"
+    }
+  ],
+  "total_money_moved": 0.0,
+  "escalations": [
+    "#103: May we commit to the 20-hoodie order at $50 each and authorize the 12-unit reprint despite the vendor's overdue $840 invoice and the resulting cash position?"
+  ],
+  "stop_reason": "completed",
+  "total_requests": 14,
+  "total_input_tokens": 40365,
+  "total_output_tokens": 2894,
+  "notes": []
+}
