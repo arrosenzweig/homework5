@@ -1,0 +1,15 @@
+https://github.com/arrosenzweig/homework5
+
+Repository: arrosenzweig/homework5
+Assignment: MGT 409 — Homework 5, Campus Customs Multi-Agent Operations
+Submitted by: Alexandria Rosenzweig (alexandria.rosenzweig@yale.edu)
+
+Clone and run:
+  git clone https://github.com/arrosenzweig/homework5.git
+  cd homework5
+  pip install -r requirements.txt
+  npm install --prefix frontend
+  cp .env.example .env        # then add your PORTKEY_API_KEY
+
+See README.md for starting the MCP server, the FastAPI backend and the
+React board, and for resetting the database before a full three-ticket run.
